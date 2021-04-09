@@ -118,7 +118,7 @@ BootcampSchema.pre('save', async function(next) {
     // no need to save the addr now
     this.address = undefined;
 
-    console.log(this.location);
+   // console.log(this.location);
 
     next();
 });
