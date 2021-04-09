@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const BootcampSchema = new mongoose.Schema({
     name: {
@@ -17,7 +18,7 @@ const BootcampSchema = new mongoose.Schema({
     website: {
         type: String,
         match: [
-            https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&/=]*), 'Please use a valid URL'
+            /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&/=]*)/, 'Please use a valid URL'
         ]
     },
     phone: {
@@ -39,11 +40,11 @@ const BootcampSchema = new mongoose.Schema({
         type: {
             type: String,
             enum: ['Point'],
-            required: true
+            required: false
         },
         coordinates: {
             type: [Number],
-            required: true,
+            required: false,
             index: '2dsphere'
         },
         formattedAddress: String,
@@ -74,6 +75,32 @@ const BootcampSchema = new mongoose.Schema({
     photo: {
         type: String,
         default: 'no-photo.jpg'
+    },
+    housing: {
+        type: Boolean,
+        default: false
+    },
+    jobAssistance: {
+        type: Boolean,
+        default: false
+    },
+    jobGurantee: {
+        type: Boolean,
+        default: false
+    },
+    acceptGI: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
-
 });
+
+BootcampSchema.pre('save', function(next) {
+    this.slug = slugify(this.name);
+    next();
+});
+
+module.exports = mongoose.model('Bootcamp', BootcampSchema);
