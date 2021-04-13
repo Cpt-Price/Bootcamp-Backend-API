@@ -8,13 +8,33 @@ const asyncHandler = require('../middleware/async');
 // @access      Public
 
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-    let queryStr = JSON.stringify(req.query);
+    // create a copy of req.query
+    const reqQuery = { ...req.query };
 
+    const removeFields = ['select'];
+    removeFields.forEach(param => delete reqQuery[param]);
+    
+    let queryStr = JSON.stringify(reqQuery);
+
+    // adding $ before the operators gte -> $gte
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    
+    queryExecution = Bootcamp.find(JSON.parse(queryStr));
 
-    console.log(queryStr);
+    // ensure that the query is in correct format i.e. an instance of Query class
+    // The Model.find() function returns an instance of Mongoose's Query class. The Query class represents // a raw CRUD operation that you may send to MongoDB. It provides a ->chainable<- interface for 
+    // building up more sophisticated queries.
 
-    const getRes = await Bootcamp.find(JSON.parse(queryStr));
+    // then check if select query exists in the main req.query
+    // then split the req.query.select at "," and join the resulting array using spaces/" "
+
+    if(req.query.select){
+    // console.log(req.query.select);
+        const fields = req.query.select.split(',').join(' '); 
+        queryExecution = queryExecution.select(fields);
+    }
+
+    const getRes = await queryExecution;
 
     if(!getRes){
         return next( new ErrorResponse(`Unable to find bootcamps`, 404));
