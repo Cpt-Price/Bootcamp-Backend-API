@@ -8,7 +8,13 @@ const asyncHandler = require('../middleware/async');
 // @access      Public
 
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-    const getRes = await Bootcamp.find();
+    let queryStr = JSON.stringify(req.query);
+
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+
+    console.log(queryStr);
+
+    const getRes = await Bootcamp.find(JSON.parse(queryStr));
 
     if(!getRes){
         return next( new ErrorResponse(`Unable to find bootcamps`, 404));
