@@ -11,7 +11,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     // create a copy of req.query
     const reqQuery = { ...req.query };
 
-    const removeFields = ['select', 'sort'];
+    const removeFields = ['select', 'sort', 'page', 'limit'];
     removeFields.forEach(param => delete reqQuery[param]);
     
     let queryStr = JSON.stringify(reqQuery);
@@ -38,11 +38,40 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     if(req.query.sort){
         // console.log(req.query.sort);
         const sortBy = req.query.sort.split(',').join(' ');
-        queryExecution = queryExecution.sort(sortBy);
-        
+        queryExecution = queryExecution.sort(sortBy);   
     }
   
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;  // 10 is the base/radix
+    const limit = parseInt(req.query.limit, 10) || 15; // no. of results per page
+    const startIndex = (page - 1) * limit; 
+    const endIndex = (page * limit);
+    // get the number of docs
+    const totalDocs = await Bootcamp.countDocuments();
+
+    queryExecution = queryExecution.skip(startIndex).limit(limit);
+
+
+    // query execution
     const getRes = await queryExecution;
+
+
+    // pagination result
+    const pagination = {};
+
+    if(endIndex < totalDocs){
+        pagination.next = {
+            page: page + 1,
+            limit
+        }
+    }
+
+    if(startIndex > 0){
+        pagination.prev = {
+            page: page - 1,
+            limit
+        }
+    }
 
     if(!getRes){
         return next( new ErrorResponse(`Unable to find bootcamps`, 404));
@@ -51,6 +80,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         success: true,
         count:getRes.length,
+        pagination: pagination,
         data: getRes
     });
 
