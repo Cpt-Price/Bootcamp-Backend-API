@@ -19,7 +19,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     // adding $ before the operators gte -> $gte
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
     
-    queryExecution = Bootcamp.find(JSON.parse(queryStr));
+    let queryExecution = Bootcamp.find(JSON.parse(queryStr));
 
     // ensure that the query is in correct format i.e. an instance of Query class
     // The Model.find() function returns an instance of Mongoose's Query class. The Query class represents // a raw CRUD operation that you may send to MongoDB. It provides a ->chainable<- interface for 
