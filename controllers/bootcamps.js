@@ -153,11 +153,13 @@ exports.updateBootcamp = asyncHandler( async (req, res, next) => {
 // @access      Private
 
 exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
-    const delRes = await Bootcamp.findByIdAndDelete(req.params.id);
+    const delRes = await Bootcamp.findById(req.params.id);
 
     if(!delRes){
         return next(new ErrorResponse(`Unable to delete bootcamp with id ${req.params.id}`, 404));
     }
+
+    delRes.remove();
 
     res.status(200).json({
         success: true,
