@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const colourCoding = require('colors');
 const errorHandler = require('./middleware/error');
 
+// hello world
 // load the config file
 dotenv.config({path: './config/config.env'});
 
